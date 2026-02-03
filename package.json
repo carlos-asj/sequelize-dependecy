@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
@@ -13,14 +14,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/carlos-asj/sequelize-dependecy/issues"
   },
   "homepage": "https://github.com/carlos-asj/sequelize-dependecy#readme",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "node": "^25.5.0",
+    "pg": "^8.18.0",
     "sequelize": "^6.37.7"
   },
   "devDependencies": {
