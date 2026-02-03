@@ -1,25 +1,21 @@
-import { Pool } from 'pg';
+import { Sequelize } from "sequelize";
 
-async function connectDB() {
-    if(global.connection) {
-        return global.connection.connect();
-    };
+const sequelize = new Sequelize('local_db', 'local_user', 'local_password', {
+  host: 'localhost',
+  dialect: 'postgres'
+});
 
-    const pool = new Pool({
-        connectionString: process.env.CONNECTION_STRING
-    });
-
-    const client = await pool.connect();
-    console.log("Pool created!");
-
-    const res = await client.query("SELECT now();");
-    console.log(res.rows[0]);
-    client.release();
-
-    global.connection = pool;
-    return pool.connect();
+const connectDB = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection has been estabilished successfully.');
+    await sequelize.sync();
+    console.log("Database Synced")
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  };
 };
 
 export {
-    connectDB
-};
+  connectDB
+}
