@@ -16,17 +16,33 @@ const sequelize = new Sequelize(
     }
 );
 
+const Client = Client(sequelize);
+const Equip = Equip(sequelize);
+
 Client.hasMany(Equip, {
     foreignKey: 'client_id',
-    as: 'equips',
+    as: 'equips', // ← alias para Cliente.getEquipamentos()
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
 });
 
 Equip.belongsTo(Client, {
     foreignKey: 'client_id',
-    as: 'client'
+    as: 'client',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
 });
+
+if (Client.associate) {
+  Client.associate({ Client, Equip });
+}
+if (Equip.associate) {
+  Equip.associate({ Client, Equip });
+}
+
+console.log('🔗 Associações definidas:');
+console.log('   Cliente → Equipamento: ✅');
+console.log('   Equipamento → Cliente: ✅');
 
 (async () => {
     try {
@@ -45,3 +61,10 @@ export {
     Equip,
     Sequelize
 };
+
+export default {
+    sequelize,
+    Sequelize,
+    Client,
+    Equip
+}

@@ -30,6 +30,13 @@ export const createClientModel = async (sequelize) => {
         }
     });
 
+    Client.associate = (models) => {
+        Client.hasMany(models.Equip, {
+            foreingKey: 'client_id',
+            as: 'equips'
+        });
+    };
+
     Client.prototype.toJSON = function() {
         const values = Object.assign({}, this.get());
         delete values.deletedAt;
@@ -37,5 +44,5 @@ export const createClientModel = async (sequelize) => {
     };
 
     return Client;
+};
 
-}

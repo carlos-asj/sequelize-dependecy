@@ -33,9 +33,22 @@ export const createEquipModel = async (sequelize) => {
         timestamps: true
     });
 
-    Equip.prototype.getInfo = function() {
-        return `${this.name} - S/N: ${this.serial_num || 'N/A'}`;
+    Equip.associate = (models) => {
+        Equip.belongsTo(models.Client, {
+            foreignKey: 'client_id',
+            as: 'client' // ← ALIAS correto
+        });
     };
+
+    Equip.findWithClient = async function(id) {
+    return await this.findByPk(id, {
+      include: [{
+        model: sequelize.models.Client,
+        as: 'client',
+        attributes: ['id', 'name', 'cpf_cnpj']
+      }]
+    });
+  };
 
     // Equip.getType = async function(type) {
     //     return await this.findAll({
