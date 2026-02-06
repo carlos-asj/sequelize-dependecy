@@ -1,30 +1,24 @@
-import { Sequelize } from "sequelize";
-import { createClientModel } from "../src/models/Clients.js";
-import { createEquipModel } from "../src/models/Equips.js";
+// src/config/database.mjs
+import dotenv from 'dotenv';
 
-const sequelize = new Sequelize('local_db', 'local_user', 'local_password', {
-  host: 'localhost',
-  dialect: 'postgres'
-});
+dotenv.config();
 
-let ClientModel = null;
-let EquipModel = null;
-
-const connectDB = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Connection has been estabilished successfully.');
-    ClientModel = await createClientModel(sequelize);
-    EquipModel = await createEquipModel(sequelize);
-    await sequelize.sync();
-    console.log("Database Synced")
-  } catch (error) {
-    console.error('Unable to connect to the database:', error);
-  };
+const databaseConfig = {
+  development: {
+    username: process.env.DB_USER || 'local_user',
+    password: 'local_password',
+    database: process.env.DB_NAME || 'local_db',
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 5432,
+    dialect: 'postgres',
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
+  }
 };
 
-export {
-  connectDB,
-  ClientModel,
-  EquipModel
-}
+export default databaseConfig;

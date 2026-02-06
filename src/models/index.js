@@ -1,7 +1,7 @@
-import sequelize from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
 import databaseConfig from '../../config/database.js';
-import Client from '../../src/models/Clients.js';
-import Equip from '../../src/models/Equips.js';
+import clientModel from './Clients.js';
+import equipModel from './Equips.js';
 
 
 const sequelize = new Sequelize(
@@ -10,14 +10,19 @@ const sequelize = new Sequelize(
     databaseConfig.password,
     {
         host: databaseConfig.host,
-        dialect: databaseConfig.dialect,
-        logging: databaseConfig.logging,
-        define: databaseConfig.define
+        dialect: 'postgres',
+        define:{
+            freezeTableName: true
+        }
     }
 );
 
-const Client = Client(sequelize);
-const Equip = Equip(sequelize);
+const Client = clientModel(sequelize, DataTypes);
+const Equip = equipModel(sequelize, DataTypes);
+
+console.log('🔍 Modelos após inicialização:');
+console.log(`   Cliente.name: ${Client.name}`);
+console.log(`   Equipamento.name: ${Equip.name}`);
 
 Client.hasMany(Equip, {
     foreignKey: 'client_id',
@@ -32,28 +37,6 @@ Equip.belongsTo(Client, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
 });
-
-if (Client.associate) {
-  Client.associate({ Client, Equip });
-}
-if (Equip.associate) {
-  Equip.associate({ Client, Equip });
-}
-
-console.log('🔗 Associações definidas:');
-console.log('   Cliente → Equipamento: ✅');
-console.log('   Equipamento → Cliente: ✅');
-
-(async () => {
-    try {
-        await sequelize.authenticate();
-        console.log('DB connection established');
-        await sequelize.sync();
-        console.log('Syncronized tables');
-    } catch(error) {
-        console.error('Connection error:', error);
-    }
-})();
 
 export {
     sequelize,

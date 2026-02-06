@@ -1,8 +1,8 @@
-import { ClientModel, EquipModel } from "../../config/database.js";
+import { Client, Equip } from "../models/index.js";
 
 export const getAllClients = async (req, res) => {
     try {
-    const clients = await ClientModel.findAll({
+    const clients = await Client.findAll({
         attributes: ['id', 'name', 'cpf_cnpj', 'createdAt'],
         order: [['createdAt', 'DESC']]
     });
@@ -26,7 +26,7 @@ export const addClient = async (req, res) => {
   const clientObj = req.body;
 
   try {
-    await ClientModel.create(clientObj);
+    await Client.create(clientObj);
     return res.status(201).json({
         message: "Client created!"
     });
@@ -45,13 +45,13 @@ export const getAllEquips = async (req, res) => {
       const offset = (pagina - 1) * limite;
       
       console.log('🔍 Parâmetros:', { pagina, limite, incluirCliente });
-      console.log('🔍 Modelo Cliente:', ClientModel?.name);
-      console.log('🔍 Modelo Equipamento:', EquipModel?.name);
+      console.log('🔍 Model Cliente:', Client?.name);
+      console.log('🔍 Model Equipamento:', Equip?.name);
 
-      console.log('🔗 Associações do Equipamento:', Object.keys(EquipModel.associations || {}));
+      console.log('🔗 Associações do Equipamento:', Object.keys(Equip.associations || {}));
       
       // Verificar se os modelos foram carregados
-      if (!ClientModel || !EquipModel) {
+      if (!Client || !Equip) {
         throw new Error('Modelos não carregados corretamente');
       }
       
@@ -60,7 +60,7 @@ export const getAllEquips = async (req, res) => {
       
       if (incluirCliente === 'true') {
         includeOptions.push({
-          model: ClientModel, // ← Use a variável Cliente importada
+          model: Client, // ← Use a variável Cliente importada
           as: 'client',  // ← DEVE ser 'cliente' (minúsculo)
           attributes: ['id', 'name', 'cpf_cnpj']
         });
@@ -69,7 +69,7 @@ export const getAllEquips = async (req, res) => {
       }
       
       // Executar consulta
-      const { count, rows: equips } = await EquipModel.findAndCountAll({
+      const { count, rows: equips } = await Equip.findAndCountAll({
         include: includeOptions,
         limit: parseInt(limite),
         offset: offset,
@@ -117,13 +117,9 @@ export const getAllEquips = async (req, res) => {
       console.error('❌ Stack trace:', error.stack);
       
       // Verificar tipo específico de erro
-      if (error.name === 'SequelizeEagerLoadingError') {
-        return res.status(500).json({
-          erro: true,
-          mensagem: 'Erro na associação de modelos',
-          detalhes: 'Verifique as associações entre Cliente e Equipamento',
-          error: error.message
-        });
+       if (error.name === 'SequelizeEagerLoadingError') {
+        console.log('⚠️  Usando solução alternativa...');
+        return await this.listarEquipamentosAlternativo(req, res);
       }
       
       return res.status(500).json({
@@ -132,13 +128,14 @@ export const getAllEquips = async (req, res) => {
         detalhes: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     };
-}
+};
+
 
 export const addEquip = async (req, res) => {
   const equipObj = req.body;
 
   try {
-    await EquipModel.create(equipObj);
+    await Equip.create(equipObj);
     return res.status(201).json({
         message: "Equip created!"
     });

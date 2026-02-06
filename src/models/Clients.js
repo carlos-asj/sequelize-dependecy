@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 
-export const createClientModel = async (sequelize) => {
+export default (sequelize, DataTypes) => {
     const Client = sequelize.define('Client', {
         id: {
             type: DataTypes.INTEGER,
@@ -29,20 +29,6 @@ export const createClientModel = async (sequelize) => {
             }
         }
     });
-
-    Client.associate = (models) => {
-        Client.hasMany(models.Equip, {
-            foreingKey: 'client_id',
-            as: 'equips'
-        });
-    };
-
-    Client.prototype.toJSON = function() {
-        const values = Object.assign({}, this.get());
-        delete values.deletedAt;
-        return values;
-    };
-
     return Client;
 };
 

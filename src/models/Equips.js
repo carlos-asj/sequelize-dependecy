@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 
-export const createEquipModel = async (sequelize) => {
+export default (sequelize, DataTypes) => {
     const Equip = sequelize.define('Equip', {
         id: {
             type: DataTypes.INTEGER,
@@ -32,30 +32,6 @@ export const createEquipModel = async (sequelize) => {
         tableName: 'equips',
         timestamps: true
     });
-
-    Equip.associate = (models) => {
-        Equip.belongsTo(models.Client, {
-            foreignKey: 'client_id',
-            as: 'client' // ← ALIAS correto
-        });
-    };
-
-    Equip.findWithClient = async function(id) {
-    return await this.findByPk(id, {
-      include: [{
-        model: sequelize.models.Client,
-        as: 'client',
-        attributes: ['id', 'name', 'cpf_cnpj']
-      }]
-    });
-  };
-
-    // Equip.getType = async function(type) {
-    //     return await this.findAll({
-    //         where: { type },
-    //         include: [ 'client']
-    //     });
-    // };
 
     return Equip;
 }
