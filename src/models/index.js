@@ -1,53 +1,66 @@
-import { Sequelize, DataTypes } from 'sequelize';
-import databaseConfig from '../../config/database.js';
-import clientModel from './Clients.js';
-import equipModel from './Equips.js';
+// src/models/index.js
+import { Sequelize } from 'sequelize';
+import { config } from 'dotenv';
+import Customer from './Customer.js';
+import Equipment from './Equipment.js';
 
+// Carregar variáveis de ambiente
+config();
 
-const sequelize = new Sequelize(
-    databaseConfig.database,
-    databaseConfig.username,
-    databaseConfig.password,
+/**
+ * Configuração e inicialização do Sequelize
+ * Esta função retorna uma instância configurada do Sequelize
+ * com todos os modelos carregados e associados
+ */
+export async function setupDatabase() {
+  // Configuração da conexão com o banco de dados
+  const sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
     {
-        host: databaseConfig.host,
-        dialect: 'postgres',
-        define:{
-            freezeTableName: true
-        }
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      dialect: 'postgres',
+      logging: process.env.NODE_ENV === 'development' ? console.log : false,
+      pool: {
+        max: 10,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
+      },
+      define: {
+        underscored: true,
+        timestamps: true
+      }
     }
-);
+  );
 
-const Client = clientModel(sequelize, DataTypes);
-const Equip = equipModel(sequelize, DataTypes);
+  // Inicializar modelos
+  Customer.init(sequelize);
+  Equipment.init(sequelize);
 
-console.log('🔍 Modelos após inicialização:');
-console.log(`   Cliente.name: ${Client.name}`);
-console.log(`   Equipamento.name: ${Equip.name}`);
+  // Definir associações
+  Customer.associate({ Equipment });
+  Equipment.associate({ Customer });
 
-Client.hasMany(Equip, {
-    foreignKey: 'client_id',
-    as: 'equips', // ← alias para Cliente.getEquipamentos()
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-});
-
-Equip.belongsTo(Client, {
-    foreignKey: 'client_id',
-    as: 'client',
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-});
-
-export {
-    sequelize,
-    Client,
-    Equip,
-    Sequelize
-};
-
-export default {
-    sequelize,
-    Sequelize,
-    Client,
-    Equip
+  // Testar conexão e sincronizar modelos
+  try {
+    await sequelize.authenticate();
+    console.log('✅ Conexão com o PostgreSQL estabelecida com sucesso!');
+    
+    // Sincronizar modelos com o banco (criar tabelas se não existirem)
+    // force: false - não recria tabelas existentes
+    // alter: true - atualiza tabelas existentes com novas colunas
+    await sequelize.sync({ force: false, alter: true });
+    console.log('✅ Modelos sincronizados com o banco de dados');
+    
+    return sequelize;
+  } catch (error) {
+    console.error('❌ Erro ao conectar/sincronizar com o banco:', error.message);
+    throw error;
+  }
 }
+
+// Exportar modelos para uso em outros arquivos
+export { Customer, Equipment };

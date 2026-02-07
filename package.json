@@ -1,11 +1,24 @@
 {
-  "name": "sequelize-dependecy",
+  "name": "sequelize-dependency",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Aplicação web para gerenciamento de clientes e equipamentos",
+  "type": "module",
+  "main": "server.js",
   "scripts": {
-    "test": "jest",
-    "dev": "nodemon src/index.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "setup-db": "node src/config/setup-database.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "pg": "^8.18.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.7"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   },
   "repository": {
     "type": "git",
@@ -14,20 +27,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "bugs": {
     "url": "https://github.com/carlos-asj/sequelize-dependecy/issues"
   },
-  "homepage": "https://github.com/carlos-asj/sequelize-dependecy#readme",
-  "dependencies": {
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "jest": "^30.2.0",
-    "node": "^25.5.0",
-    "pg": "^8.18.0",
-    "sequelize": "^6.37.7"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.11"
-  }
+  "homepage": "https://github.com/carlos-asj/sequelize-dependecy#readme"
 }
